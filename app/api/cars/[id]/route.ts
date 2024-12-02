@@ -4,10 +4,17 @@ import { Criteria } from '@/app/types';
 
 const prisma = new PrismaClient();
 
-export async function GET({ params }: { params: { id: string } }) {
+export async function GET(req: NextRequest) {
   try {
+    const { searchParams } = req.nextUrl;
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json({ error: 'Car ID is required' }, { status: 400 });
+    }
+
     const car = await prisma.car.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: { criteria: true },
     });
 
@@ -22,8 +29,15 @@ export async function GET({ params }: { params: { id: string } }) {
   }
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest) {
   try {
+    const { searchParams } = req.nextUrl;
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json({ error: 'Car ID is required' }, { status: 400 });
+    }
+
     const { criteria }: { criteria: Criteria[] } = await req.json();
 
     // Update individual criteria
@@ -41,14 +55,14 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 
     // Recalculate car status
     const updatedCriteria = await prisma.criteria.findMany({
-      where: { carId: params.id },
+      where: { carId: id },
     });
 
     const goodCriteriaCount = updatedCriteria.filter((c) => c.isGood).length;
     const newStatus = goodCriteriaCount === 5 ? 2 : goodCriteriaCount > 0 ? 1 : 0;
 
     const updatedCar = await prisma.car.update({
-      where: { id: params.id },
+      where: { id },
       data: { status: newStatus },
       include: { criteria: true },
     });
