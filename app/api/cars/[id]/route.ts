@@ -3,13 +3,19 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+// Định nghĩa kiểu cho Criteria
+interface Criterion {
+  id: string;
+  isGood: boolean;
+  note?: string | null;
+}
+
 export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = params; // Lấy ID từ params
-    console.log(req.json());
+    const { id } = params;
 
     if (!id) {
       return NextResponse.json({ error: 'Car ID is required' }, { status: 400 });
@@ -36,16 +42,17 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = params; // Lấy ID từ params
+    const { id } = params;
 
     if (!id) {
       return NextResponse.json({ error: 'Car ID is required' }, { status: 400 });
     }
 
-    const { criteria } = await req.json();
+    // Xác định kiểu dữ liệu cho criteria
+    const { criteria }: { criteria: Criterion[] } = await req.json();
 
-    // Update individual criteria
-    const updatePromises = criteria.map(async (criterion: any) => {
+    // Cập nhật các criteria
+    const updatePromises = criteria.map(async (criterion) => {
       await prisma.criteria.update({
         where: { id: criterion.id },
         data: {
@@ -57,7 +64,7 @@ export async function PUT(
 
     await Promise.all(updatePromises);
 
-    // Recalculate car status
+    // Tính toán lại trạng thái của xe
     const updatedCriteria = await prisma.criteria.findMany({
       where: { carId: id },
     });
