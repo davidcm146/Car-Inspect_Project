@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
-import { Criteria } from '@/app/types';
 
 const prisma = new PrismaClient();
 
-export async function GET(req: NextRequest) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
-    const { searchParams } = req.nextUrl;
-    const id = searchParams.get('id');
+    const { id } = params; // Lấy ID từ params
+    console.log(req.json());
 
     if (!id) {
       return NextResponse.json({ error: 'Car ID is required' }, { status: 400 });
@@ -24,24 +26,26 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(car);
   } catch (error) {
-    console.log(error);
+    console.error('Error fetching car:', error);
     return NextResponse.json({ error: 'Failed to fetch car' }, { status: 500 });
   }
 }
 
-export async function PUT(req: NextRequest) {
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
-    const { searchParams } = req.nextUrl;
-    const id = searchParams.get('id');
+    const { id } = params; // Lấy ID từ params
 
     if (!id) {
       return NextResponse.json({ error: 'Car ID is required' }, { status: 400 });
     }
 
-    const { criteria }: { criteria: Criteria[] } = await req.json();
+    const { criteria } = await req.json();
 
     // Update individual criteria
-    const updatePromises = criteria.map(async (criterion) => {
+    const updatePromises = criteria.map(async (criterion: any) => {
       await prisma.criteria.update({
         where: { id: criterion.id },
         data: {
@@ -69,7 +73,7 @@ export async function PUT(req: NextRequest) {
 
     return NextResponse.json(updatedCar);
   } catch (error) {
-    console.log(error);
+    console.error('Error updating car inspection:', error);
     return NextResponse.json({ error: 'Failed to update car inspection' }, { status: 500 });
   }
 }
