@@ -6,48 +6,63 @@ import { Car } from "@/app/types";
 export default function CarInspectionPage() {
   const params = useParams();
   const [car, setCar] = useState<Car | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchCarDetails();
   }, [params.id]);
 
   const fetchCarDetails = async () => {
-    const response = await fetch(`/api/cars/${params.id}`);
-    const data = await response.json();
-    setCar(data);
+    setLoading(true);
+    setError(null); // Reset any previous errors
+    try {
+      const response = await fetch(`/api/cars/${params.id}`);
+      if (!response.ok) throw new Error("Failed to fetch car details");
+      const data = await response.json();
+      setCar(data);
+    } catch (err) {
+      setError("Error loading car details");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const updateCriteria = async () => {
     if (!car) return;
 
-    const response = await fetch(`/api/cars/${car.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ criteria: car.criteria }),
-    });
-    const updatedCar = await response.json();
-    setCar(updatedCar);
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(`/api/cars/${car.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ criteria: car.criteria }),
+      });
+      if (!response.ok) throw new Error("Failed to update criteria");
+      const updatedCar = await response.json();
+      setCar(updatedCar);
+    } catch (err) {
+      setError("Error updating car inspection");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const toggleCriterion = (criterionId: string) => {
     if (!car) return;
-  
-    // Keep note either tick or untick checkbox
+
     const updatedCriteria = car.criteria.map((criterion) =>
       criterion.id === criterionId
-        ? { 
-            ...criterion, 
-            isGood: !criterion.isGood
-          }
+        ? { ...criterion, isGood: !criterion.isGood }
         : criterion
-    ); 
+    );
     setCar({ ...car, criteria: updatedCriteria });
   };
-  
-  // Update note with criteria
+
   const updateNote = (criterionId: string, note: string) => {
     if (!car) return;
-  
+
     const updatedCriteria = car.criteria.map((criterion) =>
       criterion.id === criterionId
         ? { ...criterion, note }
@@ -55,9 +70,12 @@ export default function CarInspectionPage() {
     );
     setCar({ ...car, criteria: updatedCriteria });
   };
-  
 
-  if (!car) return <div className="text-center w-full">Loading...</div>;
+  if (loading) return <div className="text-center w-full">Loading...</div>;
+
+  if (error) return <div className="text-center w-full text-red-500">{error}</div>;
+
+  if (!car) return <div className="text-center w-full">No car data found</div>;
 
   return (
     <div className="container mx-auto p-6">
@@ -72,7 +90,11 @@ export default function CarInspectionPage() {
               : "bg-green-500"
           }`}
         >
-          {car.status === 0 ? "Pending" : car.status === 1 ? "In Progress" : "Completed"}
+          {car.status === 0
+            ? "Pending"
+            : car.status === 1
+            ? "In Progress"
+            : "Completed"}
         </span>
       </div>
 
@@ -103,9 +125,10 @@ export default function CarInspectionPage() {
         <div className="flex space-x-4 mt-6">
           <button
             onClick={updateCriteria}
-            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+            disabled={loading}
+            className={`px-4 py-2 ${loading ? "bg-gray-500" : "bg-blue-500"} text-white rounded-md hover:bg-blue-600`}
           >
-            Save Inspection
+            {loading ? "Saving..." : "Save Inspection"}
           </button>
         </div>
       </div>
