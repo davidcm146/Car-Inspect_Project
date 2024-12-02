@@ -9,10 +9,11 @@ interface Criterion {
   note?: string | null;
 }
 
-export async function GET(req: NextRequest, context: { params: { id: string } }) {
+export async function GET(req: NextRequest, res: NextResponse, context: { params: { id: string } }) {
   try {
     const { id } = context.params;
     console.log(req.json());
+    console.log(res.json());
 
     if (!id) {
       return NextResponse.json({ error: 'Car ID is required' }, { status: 400 });
@@ -34,9 +35,10 @@ export async function GET(req: NextRequest, context: { params: { id: string } })
   }
 }
 
-export async function PUT(req: NextRequest, context: { params: { id: string } }) {
+export async function PUT(req: NextRequest, res: NextResponse, context: { params: { id: string } }) {
   try {
     const { id } = context.params;
+    console.log(res.json());
 
     if (!id) {
       return NextResponse.json({ error: 'Car ID is required' }, { status: 400 });
