@@ -1,11 +1,10 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { Car } from "@/app/types";
 
 export default function CarInspectionPage() {
   const params = useParams();
-  const router = useRouter();
   const [car, setCar] = useState<Car | null>(null);
 
   useEffect(() => {

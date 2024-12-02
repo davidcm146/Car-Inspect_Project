@@ -1,14 +1,8 @@
-// app/cars/page.tsx
 "use client"
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-
-interface Car {
-  id: string
-  name: string
-  status: 0 | 1 | 2
-}
+import { Car } from '../types'
 
 const STATUS_LABELS = {
   0: "Not Inspected",

@@ -1,7 +1,7 @@
 export interface Car {
     id: string;
     name: string;
-    status: number;
+    status: 0 | 1 | 2;
     criteria: Criteria[]
 }
 
