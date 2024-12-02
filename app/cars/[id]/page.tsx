@@ -22,6 +22,7 @@ export default function CarInspectionPage() {
       const data = await response.json();
       setCar(data);
     } catch (err) {
+      console.log(err);
       setError("Error loading car details");
     } finally {
       setLoading(false);
@@ -43,6 +44,7 @@ export default function CarInspectionPage() {
       const updatedCar = await response.json();
       setCar(updatedCar);
     } catch (err) {
+      console.log(err);
       setError("Error updating car inspection");
     } finally {
       setLoading(false);
