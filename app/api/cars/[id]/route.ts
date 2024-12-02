@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }
+export async function GET({ params }: { params: { id: string } }
 ) {
   try {
     const car = await prisma.car.findUnique({
