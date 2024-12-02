@@ -24,7 +24,7 @@ export default function CarsPage() {
   useEffect(() => {
     async function fetchCars() {
       try {
-        const response = await fetch('/api/cars')
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cars`)
         if (!response.ok) {
           throw new Error('Failed to fetch cars')
         }

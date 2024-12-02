@@ -17,7 +17,7 @@ export default function CarInspectionPage() {
     setLoading(true);
     setError(null); // Reset any previous errors
     try {
-      const response = await fetch(`/api/cars/${params.id}`);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cars/${params.id}`);
       if (!response.ok) throw new Error("Failed to fetch car details");
       const data = await response.json();
       setCar(data);
@@ -35,7 +35,7 @@ export default function CarInspectionPage() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`/api/cars/${car.id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cars/${car.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ criteria: car.criteria }),
