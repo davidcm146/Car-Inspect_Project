@@ -10,8 +10,8 @@ interface Criterion {
 }
 
 // GET Request - Get car details by ID
-export async function GET(req: Request, { params }: { params: { id: string } }) {
-  const { id } = params;
+export async function GET(req: Request, context: { params: Record<string, string> }) {
+  const { id } = context.params; // Extract ID from params
 
   if (!id) {
     return NextResponse.json({ error: 'Car ID is required' }, { status: 400 });
@@ -31,8 +31,8 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
 }
 
 // PUT Request - Update car inspection criteria by ID
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
-  const { id } = params;
+export async function PUT(req: Request, context: { params: Record<string, string> }) {
+  const { id } = context.params; // Extract ID from params
 
   if (!id) {
     return NextResponse.json({ error: 'Car ID is required' }, { status: 400 });
