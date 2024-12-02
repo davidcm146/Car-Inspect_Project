@@ -3,19 +3,16 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-// Định nghĩa kiểu cho Criteria
 interface Criterion {
   id: string;
   isGood: boolean;
   note?: string | null;
 }
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(req: NextRequest, context: { params: { id: string } }) {
   try {
-    const { id } = params;
+    const { id } = context.params;
+    console.log(req.json());
 
     if (!id) {
       return NextResponse.json({ error: 'Car ID is required' }, { status: 400 });
@@ -37,21 +34,18 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(req: NextRequest, context: { params: { id: string } }) {
   try {
-    const { id } = params;
+    const { id } = context.params;
 
     if (!id) {
       return NextResponse.json({ error: 'Car ID is required' }, { status: 400 });
     }
 
-    // Xác định kiểu dữ liệu cho criteria
+    // Get the `criteria` from the request body
     const { criteria }: { criteria: Criterion[] } = await req.json();
 
-    // Cập nhật các criteria
+    // Update the criteria
     const updatePromises = criteria.map(async (criterion) => {
       await prisma.criteria.update({
         where: { id: criterion.id },
@@ -64,7 +58,7 @@ export async function PUT(
 
     await Promise.all(updatePromises);
 
-    // Tính toán lại trạng thái của xe
+    // Recalculate the car status based on updated criteria
     const updatedCriteria = await prisma.criteria.findMany({
       where: { carId: id },
     });
@@ -72,13 +66,14 @@ export async function PUT(
     const goodCriteriaCount = updatedCriteria.filter((c) => c.isGood).length;
     const newStatus = goodCriteriaCount === 5 ? 2 : goodCriteriaCount > 0 ? 1 : 0;
 
+    // Update the car status in the database
     const updatedCar = await prisma.car.update({
       where: { id },
       data: { status: newStatus },
       include: { criteria: true },
     });
 
-    return NextResponse.json(updatedCar);
+    return NextResponse.json(updatedCar); // Return the updated car
   } catch (error) {
     console.error('Error updating car inspection:', error);
     return NextResponse.json({ error: 'Failed to update car inspection' }, { status: 500 });
