@@ -17,6 +17,7 @@ export async function GET({ params }: { params: { id: string } }
 
     return NextResponse.json(car)
   } catch (error) {
+    console.log(error);
     return NextResponse.json({ error: 'Failed to fetch car' }, { status: 500 })
   }
 }
@@ -55,6 +56,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 
     return NextResponse.json(updatedCar)
   } catch (error) {
+    console.log(error);
     return NextResponse.json({ error: 'Failed to update car inspection' }, { status: 500 })
   }
 }
